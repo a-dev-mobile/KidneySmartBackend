@@ -1,1 +1,5 @@
-/local.env
+
+.vscode/launch.json
+config/config.dev.json
+config/config.local.json
+config/config.prod.json

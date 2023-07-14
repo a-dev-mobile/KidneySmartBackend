@@ -1,33 +1,53 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
-	"log"
+	envConst "KidneySmartBackend/internal/env"
+	"encoding/json"
 	"os"
-	"time"
 )
 
+
 type Config struct {
-	Env string `env-default:"local"`
+	Server struct {
+		Host string `json:"host"`
+		Port int    `json:"port"`
+	} `json:"server"`
+	Logging struct {
+		Level string `json:"level"`
+	} `json:"logging"`
+	Database struct {
+		User    string `json:"user"`
+		Name    string `json:"name"`
+		Host    string `json:"host"`
+		Port    int    `json:"port"`
+		SslMode string `json:"sslmode"`
+	} `json:"database"`
 }
 
-type HTTPServer struct {
-	Address string        `yaml:"address" env-default:"localhost:8080"`
-	Timeout time.Duration `yaml:"timeout" env-default:"4s"`
-}
+func loadConfig(file string) (Config, error) {
+	var config Config
 
-func MustLoad() *Config {
-	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		log.Fatal("CONFIG_PATH is not SET")
+	configFile, err := os.Open(file)
+	if err != nil {
+		return config, err
 	}
-	//check if file exist
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file does not exist: %s", configPath)
+	defer configFile.Close()
+
+	jsonParser := json.NewDecoder(configFile)
+	err = jsonParser.Decode(&config)
+
+	return config, err
+}
+func GetConfig(appEnv string) (Config, error) {
+	var configFile string
+	switch appEnv {
+	case envConst.Prod:
+		configFile = "../config/config.prod.json"
+	case envConst.Dev:
+		configFile = "../config/config.dev.json"
+	default:
+		configFile = "../config/config.local.json"
 	}
-	var cfg Config
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("cannot read config: %s", err)
-	}
-	return &cfg
+
+	return loadConfig(configFile)
 }
