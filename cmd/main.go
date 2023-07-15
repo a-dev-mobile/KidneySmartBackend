@@ -3,6 +3,7 @@ package main
 import (
 	"KidneySmartBackend/internal/config"
 	"KidneySmartBackend/internal/lib/logger/sl"
+	"KidneySmartBackend/internal/migrations"
 	"KidneySmartBackend/internal/storage/postgres"
 
 	"log"
@@ -13,11 +14,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// const (
-// 	envLocal = "local"
-// 	envDev   = "dev"
-// 	envProd  = "prod"
-// )
 
 func main() {
 	appEnv, err := getAppEnv()
@@ -37,7 +33,12 @@ func main() {
 	}
 	_ = db
 
-
+	// Выполнение миграций
+	err = migrations.PerformMigration(cfg.Database.Name, db)
+	if err != nil {
+		log.Fatalf("Error performing migrations: %s", err)
+	}
+	
 	lg.Info("start KidneySmartBackend", slog.String("env", appEnv))
 	lg.Info("Loaded config file", slog.Any("config_json", cfg))
 	lg.Debug("debug msg are enabled")
