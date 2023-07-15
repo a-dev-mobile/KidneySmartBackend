@@ -3,3 +3,4 @@
 config/config.dev.json
 config/config.local.json
 config/config.prod.json
+.vscode/settings.json

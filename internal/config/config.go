@@ -3,9 +3,10 @@ package config
 import (
 	envConst "KidneySmartBackend/internal/env"
 	"encoding/json"
+	"errors"
+
 	"os"
 )
-
 
 type Config struct {
 	Server struct {
@@ -40,13 +41,16 @@ func loadConfig(file string) (Config, error) {
 }
 func GetConfig(appEnv string) (Config, error) {
 	var configFile string
+
 	switch appEnv {
 	case envConst.Prod:
 		configFile = "../config/config.prod.json"
 	case envConst.Dev:
 		configFile = "../config/config.dev.json"
-	default:
+	case envConst.Local:
 		configFile = "../config/config.local.json"
+	default:
+		return Config{}, errors.New("invalid environment: expected Prod, Dev, or Local")
 	}
 
 	return loadConfig(configFile)

@@ -14,7 +14,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-
 func main() {
 	appEnv, err := getAppEnv()
 	if err != nil {
@@ -34,11 +33,11 @@ func main() {
 	_ = db
 
 	// Выполнение миграций
-	err = migrations.PerformMigration(cfg.Database.Name, db)
+	err = migrations.PerformMigration(appEnv, cfg.Database.Name, db)
 	if err != nil {
 		log.Fatalf("Error performing migrations: %s", err)
 	}
-	
+
 	lg.Info("start KidneySmartBackend", slog.String("env", appEnv))
 	lg.Info("Loaded config file", slog.Any("config_json", cfg))
 	lg.Debug("debug msg are enabled")
@@ -52,4 +51,3 @@ func getAppEnv() (string, error) {
 
 	return appEnv, nil
 }
-
